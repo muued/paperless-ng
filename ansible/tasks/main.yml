@@ -18,6 +18,7 @@
       - libpq-dev
       - libmagic-dev
       - mime-support
+      - python3-pikepdf
       # OCRmyPDF
       - unpaper
       - ghostscript
