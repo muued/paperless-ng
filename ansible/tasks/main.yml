@@ -472,7 +472,7 @@
   command: '{{ paperlessng_virtualenv }}/bin/python3 {{ paperlessng_directory }}/src/manage.py shell -c "{{ creation_script }}"'
   register: superuser
   changed_when: superuser.stdout == 'changed'
-  no_log: yes
+  # no_log: yes
 
 - name: set ownership and permissions on paperlessng venv
   file:
