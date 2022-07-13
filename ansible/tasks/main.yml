@@ -37,16 +37,10 @@
       - build-essential
       - python3-setuptools
       - python3-wheel
+      - python3-venv
       # ansible requirements
       - tar # unarchive
       - gzip # archive
-
-# upstream virtualenv in Ubuntu 20.04 is broken
-# https://github.com/pypa/virtualenv/issues/1873
-- name: install python venv
-  pip:
-    name: venv
-    extra_args: --upgrade
 
 - name: install ocr languages
   apt:
