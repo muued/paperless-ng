@@ -43,9 +43,9 @@
 
 # upstream virtualenv in Ubuntu 20.04 is broken
 # https://github.com/pypa/virtualenv/issues/1873
-- name: install python virtualenv
+- name: install python venv
   pip:
-    name: virtualenv
+    name: venv
     extra_args: --upgrade
 
 - name: install ocr languages
@@ -422,7 +422,7 @@
   become: yes
   become_user: "{{ paperlessng_system_user }}"
   command:
-    cmd: "python3 -m virtualenv {{ paperlessng_virtualenv }} -p /usr/bin/python3"
+    cmd: "python3 -m venv {{ paperlessng_virtualenv }}"
     creates: "{{ paperlessng_virtualenv }}"
   register: venv
 
@@ -432,12 +432,12 @@
       become_user: "{{ paperlessng_system_user }}"
       pip:
         requirements: "{{ paperlessng_directory }}/requirements.txt"
-        executable: "{{ paperlessng_virtualenv }}/local/bin/pip3"
+        executable: "{{ paperlessng_virtualenv }}/bin/pip3"
         extra_args: --upgrade
     - name: migrate database schema
       become: yes
       become_user: "{{ paperlessng_system_user }}"
-      command: "{{ paperlessng_virtualenv }}/local/bin/python3 {{ paperlessng_directory }}/src/manage.py migrate"
+      command: "{{ paperlessng_virtualenv }}/bin/python3 {{ paperlessng_directory }}/src/manage.py migrate"
       register: database_schema
       changed_when: '"No migrations to apply." not in database_schema.stdout'
   when: not reconfigure_only
@@ -469,7 +469,7 @@
       else:
           User.objects.create_superuser('{{ paperlessng_superuser_name }}', '{{ paperlessng_superuser_email }}', '{{ paperlessng_superuser_password }}')
           print('changed')
-  command: '{{ paperlessng_virtualenv }}/local/bin/python3 {{ paperlessng_directory }}/src/manage.py shell -c "{{ creation_script }}"'
+  command: '{{ paperlessng_virtualenv }}/bin/python3 {{ paperlessng_directory }}/src/manage.py shell -c "{{ creation_script }}"'
   register: superuser
   changed_when: superuser.stdout == 'changed'
   # no_log: yes
@@ -525,21 +525,21 @@
     path: "{{ paperlessng_directory }}/scripts/paperless-consumer.service"
     section: "Service"
     option: "ExecStart"
-    value: "{{ paperlessng_virtualenv }}/local/bin/python3 manage.py document_consumer"
+    value: "{{ paperlessng_virtualenv }}/bin/python3 manage.py document_consumer"
 
 - name: configure paperless-scheduler service
   ini_file:
     path: "{{ paperlessng_directory }}/scripts/paperless-scheduler.service"
     section: "Service"
     option: "ExecStart"
-    value: "{{ paperlessng_virtualenv }}/local/bin/python3 manage.py qcluster"
+    value: "{{ paperlessng_virtualenv }}/bin/python3 manage.py qcluster"
 
 - name: configure paperless-webserver service
   ini_file:
     path: "{{ paperlessng_directory }}/scripts/paperless-webserver.service"
     section: "Service"
     option: "ExecStart"
-    value: "{{ paperlessng_virtualenv }}/local/bin/gunicorn -c {{ paperlessng_directory }}/gunicorn.conf.py paperless.asgi:application"
+    value: "{{ paperlessng_virtualenv }}/bin/gunicorn -c {{ paperlessng_directory }}/gunicorn.conf.py paperless.asgi:application"
 
 - name: copy systemd services
   copy:
